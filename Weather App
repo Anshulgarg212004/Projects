@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEATHER APP</title>
+
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
+         }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #dff3ff;
+            font-family: Arial;
+        }
+
+        .box {
+            height: 620px;
+            width: 410px;
+            background: #22C1C3;
+            background: linear-gradient(to top, #000099 0%, #33cccc 100%);
+            border-radius: 20px;
+            padding: 15px;
+            color: whitesmoke;
+            box-shadow: 0 8px 25px black;
+        }
+
+       .serch-bar {
+            background-image: url("search.png");
+            background-repeat: no-repeat;
+            background-size: 18px;        
+            background-position: 10px center;  
+            padding-left: 40px;   
+            margin: 10px;
+            height: 40px;
+            width: 96%;
+            border-radius: 25px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .temp-box {
+            height: 280px;
+            width: 100%;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            display:flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            position: relative;
+        }
+
+        .top-temp-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #weatherIcon {
+            width: 150px;
+            height: 150px;
+        }
+
+        .temp-combined {
+            display: flex;
+            align-items: baseline;
+        }
+
+        #temprature {
+            font-size: 90px;
+            font-weight: bold;
+        }
+
+        #degree {
+            font-size: 32px;
+            transform: translateY(-30px);
+            font-weight: bold;
+        }
+
+       
+        .inner-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .inner-box {
+            width: 48%;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            color: whitesmoke;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .component-box {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 12px;
+        }
+
+        .boxes {
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 10px;
+            font-size: 15px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body onload="getData()">
+
+<div class="box">
+
+    <input id="search" class="serch-bar" type="text" value="Gwalior"
+        placeholder="Search city..." onchange="getData()">
+
+    <!-- ⭐ MAIN TEMPERATURE BOX WITH MOVED BOXES -->
+    <div class="temp-box">
+
+        <div class="top-temp-row">
+            <div class="temp-combined">
+                <p id="temprature">--</p><sup id="degree">°C</sup>
+            </div>
+
+            <img id="weatherIcon">
+        </div>
+
+        <!-- ⭐ moved inside main temp box -->
+        <div class="inner-info-row">
+            <div class="inner-box" id="min_max"></div>
+            <div class="inner-box" id="rise-set"></div>
+        </div>
+
+    </div>
+
+    <div class="component-box">
+        <div class="boxes" id="feels">Feels Like</div>
+        <div class="boxes" id="pressure">Pressure</div>
+        <div class="boxes" id="humidity">Humidity</div>
+        <div class="boxes" id="visibility">Visibility</div>
+        <div class="boxes" id="ws">Wind Speed</div>
+        <div class="boxes" id="description">Description</div>
+    </div>
+
+</div>
+
+<script>
+
+function convertTime(t) {
+    return new Date(t * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function getData() {
+
+    const apikey = "84d511cf581944e3a863c7cd678f3af5";
+    const city = document.getElementById("search").value;
+
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}&units=metric`)
+    .then(res => res.json())
+    .then(data => {
+        const iconCode = data.weather[0].icon;
+        document.getElementById("temprature").textContent = Math.floor(data.main.temp);
+        document.getElementById("weatherIcon").src =`https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+        document.getElementById("min_max").innerHTML =`Min: ${Math.floor(data.main.temp_min)}°C<br>Max: ${Math.floor(data.main.temp_max)}°C`;
+        document.getElementById("rise-set").innerHTML =`Sunrise: ${convertTime(data.sys.sunrise)}<br>Sunset: ${convertTime(data.sys.sunset)}`;
+        document.getElementById("feels").innerHTML = `Feels Like<br>${Math.floor(data.main.feels_like)}°C`;
+        document.getElementById("pressure").innerHTML = `Pressure<br>${data.main.pressure} hPa`;
+        document.getElementById("humidity").innerHTML = `Humidity<br>${data.main.humidity}%`;
+        document.getElementById("visibility").innerHTML = `Visibility<br>${data.visibility/1000} km`;
+        document.getElementById("ws").innerHTML = `Wind<br>${Math.floor(data.wind.speed * 3.6)} km/h`;
+        document.getElementById("description").innerHTML =`Description<br>${data.weather[0].description}`;
+    });
+}
+</script>
+
+</body>
+</html>
